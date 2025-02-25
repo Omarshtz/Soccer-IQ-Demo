@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Soccer_IQ_Demo.Models;
 using Soccer_IQ_Demo.Repository;
 
@@ -9,45 +8,56 @@ namespace Soccer_IQ_Demo.Controllers
     [ApiController]
     public class PlayerController : ControllerBase
     {
+        private readonly PlayerRepository playerRepository;
 
-        PlayerRepository playerRepository=new PlayerRepository();
+        public PlayerController(PlayerRepository playerRepository)
+        {
+            this.playerRepository = playerRepository;
+        }
+
+        [HttpGet]
         public IActionResult Display()
         {
-
             var players = playerRepository.GetAll();
             return Ok(players);
-
-
-
-
-
         }
-        public IActionResult Create(Player player)
+
+        [HttpPost]
+        public IActionResult Create([FromBody] Player player)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                playerRepository.Add(player);
-                playerRepository.Commit();
-
-                return BadRequest();
+                return BadRequest(ModelState);
             }
-            return Ok(player);
 
+            playerRepository.Add(player);
+            return CreatedAtAction(nameof(Display), new { id = player.Id }, player);
         }
-        public IActionResult Edit(Player player)
+
+        [HttpPut]
+        public IActionResult Edit([FromBody] Player player)
         {
+            var existingPlayer = playerRepository.GetById(player.Id);
+            if (existingPlayer == null)
+            {
+                return NotFound("Player not found");
+            }
+
             playerRepository.Edit(player);
-            playerRepository.Commit();
-            return Ok();
+            return Ok(player);
         }
+
+        [HttpDelete("{playerId}")]
         public IActionResult Delete(int playerId)
         {
             var player = playerRepository.GetById(playerId);
+            if (player == null)
+            {
+                return NotFound("Player not found");
+            }
 
             playerRepository.Delete(player);
-            playerRepository.Commit();
-            return Ok();
+            return NoContent();
         }
-
     }
 }

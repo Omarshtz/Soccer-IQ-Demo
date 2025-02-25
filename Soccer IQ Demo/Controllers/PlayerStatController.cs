@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Soccer_IQ_Demo.Models;
 using Soccer_IQ_Demo.Repository;
 
@@ -9,46 +8,56 @@ namespace Soccer_IQ_Demo.Controllers
     [ApiController]
     public class PlayerStatController : ControllerBase
     {
+        private readonly PlayerStatRepository playerStatRepository;
 
-        PlayerStatRepository playerStatRepository=new PlayerStatRepository();
+        public PlayerStatController(PlayerStatRepository playerStatRepository)
+        {
+            this.playerStatRepository = playerStatRepository;
+        }
+
+        [HttpGet]
         public IActionResult Display()
         {
-
-            var playerstats = playerStatRepository.GetAll();
-            return Ok(playerstats);
-
-
-
-
-
+            var playerStats = playerStatRepository.GetAll();
+            return Ok(playerStats);
         }
-        public IActionResult Create(PlayerStat playerStat)
+
+        [HttpPost]
+        public IActionResult Create([FromBody] PlayerStat playerStat)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                playerStatRepository.Add(playerStat);
-                playerStatRepository.Commit();
-
-                return BadRequest();
+                return BadRequest(ModelState);
             }
-            return Ok(playerStat);
 
+            playerStatRepository.Add(playerStat);
+            return CreatedAtAction(nameof(Display), new { id = playerStat.Id }, playerStat);
         }
-        public IActionResult Edit(PlayerStat playerStat)
+
+        [HttpPut]
+        public IActionResult Edit([FromBody] PlayerStat playerStat)
         {
+            var existingStat = playerStatRepository.GetById(playerStat.Id);
+            if (existingStat == null)
+            {
+                return NotFound("PlayerStat not found");
+            }
+
             playerStatRepository.Edit(playerStat);
-            playerStatRepository.Commit();
-            return Ok();
+            return Ok(playerStat);
         }
+
+        [HttpDelete("{playerStatId}")]
         public IActionResult Delete(int playerStatId)
         {
             var playerStat = playerStatRepository.GetById(playerStatId);
+            if (playerStat == null)
+            {
+                return NotFound("PlayerStat not found");
+            }
 
             playerStatRepository.Delete(playerStat);
-            playerStatRepository.Commit();
-            return Ok();
+            return NoContent();
         }
-
-
     }
 }

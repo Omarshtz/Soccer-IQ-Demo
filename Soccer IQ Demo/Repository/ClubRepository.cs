@@ -8,7 +8,12 @@ namespace Soccer_IQ_Demo.Repository
     {
 
 
-        ApplicationDbContext context=new ApplicationDbContext();
+        private readonly ApplicationDbContext context;
+
+        public ClubRepository(ApplicationDbContext context)
+        {
+            this.context = context;
+        }
         public List<Club> GetAll(string? include = null)
         {
             return include == null ? context.Clubs.ToList() : context.Clubs.Include(include).ToList();
@@ -16,7 +21,7 @@ namespace Soccer_IQ_Demo.Repository
 
         }
 
-        public Club GetById(int clubId)
+        public Club? GetById(int clubId)
         {
             return context.Clubs.Find(clubId);
 

@@ -1,4 +1,8 @@
 
+using Microsoft.EntityFrameworkCore;
+using Soccer_IQ_Demo.Data;
+using Soccer_IQ_Demo.Repository;
+
 namespace Soccer_IQ_Demo
 {
     public class Program
@@ -14,7 +18,17 @@ namespace Soccer_IQ_Demo
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+            builder.Services.AddScoped<PlayerRepository>();
+            builder.Services.AddScoped<PlayerStatRepository>();
+            builder.Services.AddScoped<ClubRepository>();
             var app = builder.Build();
+
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
