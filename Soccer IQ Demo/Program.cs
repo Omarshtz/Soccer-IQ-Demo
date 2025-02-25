@@ -12,6 +12,10 @@ namespace Soccer_IQ_Demo
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddScoped<PlayerRepository>();
+            builder.Services.AddScoped<PlayerStatRepository>();
+            builder.Services.AddScoped<ClubRepository>();
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -23,9 +27,6 @@ namespace Soccer_IQ_Demo
          options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-            builder.Services.AddScoped<PlayerRepository>();
-            builder.Services.AddScoped<PlayerStatRepository>();
-            builder.Services.AddScoped<ClubRepository>();
             var app = builder.Build();
 
 
